@@ -1,10 +1,7 @@
 "use server";
 
 import { z } from "zod";
-
-import { createUser, getUser } from "@/lib/db/queries";
-
-import { signIn } from "./auth";
+import { signInWithEmail, signUp } from "@/lib/auth/neon-auth";
 
 const authFormSchema = z.object({
   email: z.string().email(),
@@ -25,11 +22,7 @@ export const login = async (
       password: formData.get("password"),
     });
 
-    await signIn("credentials", {
-      email: validatedData.email,
-      password: validatedData.password,
-      redirect: false,
-    });
+    await signInWithEmail(validatedData.email, validatedData.password);
 
     return { status: "success" };
   } catch (error) {
@@ -61,22 +54,16 @@ export const register = async (
       password: formData.get("password"),
     });
 
-    const [user] = await getUser(validatedData.email);
-
-    if (user) {
-      return { status: "user_exists" } as RegisterActionState;
-    }
-    await createUser(validatedData.email, validatedData.password);
-    await signIn("credentials", {
-      email: validatedData.email,
-      password: validatedData.password,
-      redirect: false,
-    });
+    await signUp(validatedData.email, validatedData.password);
 
     return { status: "success" };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { status: "invalid_data" };
+    }
+
+    if (error instanceof Error && error.message === "User already exists") {
+      return { status: "user_exists" };
     }
 
     return { status: "failed" };

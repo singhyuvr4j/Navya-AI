@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/lib/auth/neon-auth";
 import type { ArtifactKind } from "@/components/chat/artifact";
 import {
   deleteDocumentsByIdAfterTimestamp,

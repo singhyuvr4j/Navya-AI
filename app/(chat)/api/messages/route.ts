@@ -1,4 +1,4 @@
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/lib/auth/neon-auth";
 import { getChatById, getMessagesByChatId } from "@/lib/db/queries";
 import { convertToUIMessages } from "@/lib/utils";
 

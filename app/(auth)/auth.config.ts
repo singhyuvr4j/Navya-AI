@@ -1,5 +1,4 @@
-import type { NextAuthConfig } from "next-auth";
-
+// Auth configuration for Neon Auth
 const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const authConfig = {
@@ -9,6 +8,4 @@ export const authConfig = {
     signIn: `${base}/login`,
     newUser: `${base}/`,
   },
-  providers: [],
-  callbacks: {},
-} satisfies NextAuthConfig;
+};

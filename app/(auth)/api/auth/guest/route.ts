@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
-import { signIn } from "@/app/(auth)/auth";
-import { isDevelopmentEnvironment } from "@/lib/constants";
+import { auth, createGuestSession } from "@/lib/auth/neon-auth";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,16 +9,15 @@ export async function GET(request: Request) {
       ? rawRedirect
       : "/";
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: !isDevelopmentEnvironment,
-  });
+  const session = await auth();
 
-  if (token) {
+  if (session) {
     const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
     return NextResponse.redirect(new URL(`${base}/`, request.url));
   }
 
-  return signIn("guest", { redirect: true, redirectTo: redirectUrl });
+  // Create guest session
+  await createGuestSession();
+
+  return NextResponse.redirect(new URL(redirectUrl, request.url));
 }

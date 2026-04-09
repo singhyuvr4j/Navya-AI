@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { auth } from "@/app/(auth)/auth";
+import { auth } from "@/lib/auth/neon-auth";
 import { deleteAllChatsByUserId, getChatsByUserId } from "@/lib/db/queries";
 import { ChatbotError } from "@/lib/errors";
 

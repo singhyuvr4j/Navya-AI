@@ -2,7 +2,7 @@ import { geolocation, ipAddress } from "@vercel/functions";
 import { checkBotId } from "botid/server";
 import { after } from "next/server";
 import { createResumableStreamContext } from "resumable-stream";
-import { auth, type UserType } from "@/app/(auth)/auth";
+import { auth, type UserType } from "@/lib/auth/neon-auth";
 import { entitlementsByUserType } from "@/lib/ai/entitlements";
 import {
   allowedModelIds,
