@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { User } from "next-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useSWRConfig } from "swr";
@@ -43,6 +42,15 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+
+// User type for Neon Auth
+interface User {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
+  type?: "guest" | "regular";
+}
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();

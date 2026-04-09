@@ -1,6 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 import { guestRegex, isDevelopmentEnvironment } from "./lib/constants";
+
+// Verify session token using jose
+async function verifyToken(token: string): Promise<{ email?: string } | null> {
+  try {
+    const { jwtVerify } = await import("jose");
+    const secret = process.env.NEON_AUTH_COOKIE_SECRET;
+    if (!secret) return null;
+    
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, secretKey);
+    
+    return { email: payload.email as string | undefined };
+  } catch {
+    return null;
+  }
+}
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,15 +28,18 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-    secureCookie: !isDevelopmentEnvironment,
-  });
+  // Get session from cookie
+  const sessionCookie = request.cookies.get("neon_auth_session");
+  const token = sessionCookie?.value;
+  
+  let sessionUser: { email?: string } | null = null;
+  if (token) {
+    sessionUser = await verifyToken(token);
+  }
 
   const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-  if (!token) {
+  if (!sessionUser) {
     const redirectUrl = encodeURIComponent(new URL(request.url).pathname);
 
     return NextResponse.redirect(
@@ -29,9 +47,9 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  const isGuest = guestRegex.test(token?.email ?? "");
+  const isGuest = guestRegex.test(sessionUser?.email ?? "");
 
-  if (token && !isGuest && ["/login", "/register"].includes(pathname)) {
+  if (sessionUser && !isGuest && ["/login", "/register"].includes(pathname)) {
     return NextResponse.redirect(new URL(`${base}/`, request.url));
   }
 

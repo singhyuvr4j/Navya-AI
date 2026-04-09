@@ -19,14 +19,14 @@ export type UserType = "guest" | "regular";
 const SESSION_COOKIE = "neon_auth_session";
 const SESSION_DURATION = 60 * 60 * 24 * 7; // 7 days
 
-interface SessionUser {
+export interface SessionUser {
   id: string;
   email: string;
   name?: string | null;
   image?: string | null;
 }
 
-interface Session {
+export interface Session {
   user: SessionUser;
   expiresAt: Date;
 }

@@ -3,7 +3,6 @@
 import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
 import { motion } from "framer-motion";
 import { usePathname, useRouter } from "next/navigation";
-import type { User } from "next-auth";
 import { useState } from "react";
 import { toast } from "sonner";
 import useSWRInfinite from "swr/infinite";
@@ -28,6 +27,15 @@ import type { Chat } from "@/lib/db/schema";
 import { fetcher } from "@/lib/utils";
 import { LoaderIcon } from "./icons";
 import { ChatItem } from "./sidebar-history-item";
+
+// User type for Neon Auth
+interface User {
+  id: string;
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
+  type?: "guest" | "regular";
+}
 
 type GroupedChats = {
   today: Chat[];

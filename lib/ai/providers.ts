@@ -2,10 +2,28 @@ import OpenAI from "openai";
 import { customProvider } from "ai";
 import { isTestEnvironment } from "../constants";
 
-// NVIDIA NIM OpenAI-compatible client
-export const nvidia = new OpenAI({
-  apiKey: process.env.NVIDIA_API_KEY!,
-  baseURL: process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1",
+// NVIDIA NIM OpenAI-compatible client - lazy loaded
+let _nvidia: OpenAI | null = null;
+
+export function getNvidiaClient(): OpenAI {
+  if (!_nvidia) {
+    const apiKey = process.env.NVIDIA_API_KEY;
+    if (!apiKey) {
+      throw new Error("NVIDIA_API_KEY is not set");
+    }
+    _nvidia = new OpenAI({
+      apiKey,
+      baseURL: process.env.NVIDIA_BASE_URL ?? "https://integrate.api.nvidia.com/v1",
+    });
+  }
+  return _nvidia;
+}
+
+// For backward compatibility
+export const nvidia = new Proxy({} as OpenAI, {
+  get(_target, prop) {
+    return getNvidiaClient()[prop as keyof OpenAI];
+  }
 });
 
 export const myProvider = isTestEnvironment

@@ -1,22 +1,28 @@
-"use server";
+"use client";
 
-import { redirect } from "next/navigation";
-import { signOut } from "@/lib/auth/neon-auth";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { signOutAction } from "@/lib/auth/actions";
 
-async function handleSignOut() {
-  await signOut();
-  redirect("/");
-}
+export function SignOutForm() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-export const SignOutForm = () => {
+  const handleSignOut = () => {
+    startTransition(async () => {
+      await signOutAction();
+      router.refresh();
+    });
+  };
+
   return (
-    <form action={handleSignOut} className="w-full">
-      <button
-        className="w-full px-1 py-0.5 text-left text-red-500"
-        type="submit"
-      >
-        Sign out
-      </button>
-    </form>
+    <button
+      className="w-full cursor-pointer text-[13px] text-left px-1 py-0.5"
+      onClick={handleSignOut}
+      disabled={isPending}
+      type="button"
+    >
+      {isPending ? "Signing out..." : "Sign out"}
+    </button>
   );
-};
+}

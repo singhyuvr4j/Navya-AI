@@ -1,8 +1,20 @@
 import { tool, type UIMessageStreamWriter } from "ai";
-import type { Session } from "next-auth";
+
 import { z } from "zod";
 import { getDocumentById, saveDocument } from "@/lib/db/queries";
 import type { ChatMessage } from "@/lib/types";
+
+// Session type for Neon Auth
+interface Session {
+  user: {
+    id: string;
+    email?: string | null;
+    name?: string | null;
+    image?: string | null;
+    type?: "guest" | "regular";
+  };
+  expires: string;
+}
 
 type EditDocumentProps = {
   session: Session;
